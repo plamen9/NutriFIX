@@ -62,13 +62,14 @@ as
     );
   end get_entity_information_icd_api;
 
-  procedure get_completion (
-    in_prompt in varchar2
+  procedure get_completion_chatgpt_api (
+    in_prompt    in  clob,
+    out_response out clob
   )
   is
     /*pragma           autonomous_transaction;*/
     co_base_url      constant varchar2(1255) := 'https://api.openai.com/v1/completions';  
-    co_client_secret constant varchar2(1255) := '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'; 
+    co_client_secret constant varchar2(1255) := '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';
     l_body           varchar2(32767);
     l_response       clob;
     l_status_code    number;    
@@ -95,8 +96,10 @@ as
     if l_status_code != 200
     then
       raise_application_error(-20999, 'API request failed with status code: ' || l_status_code || ' - ' || l_response);
+    else 
+      out_response := l_response;    
     end if;
-  end get_completion;
+  end get_completion_chatgpt_api;
 
   procedure add_nutrients (
       in_date               in date
@@ -125,7 +128,7 @@ as
     select l_user_id
          , in_date
          , t.column_value
-         , 1
+         , in_amount
       from table(in_nutrition_fact_ids) t;
 
     /*get_completion (
