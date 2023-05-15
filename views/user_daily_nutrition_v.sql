@@ -21,5 +21,5 @@ join nutrition_facts f
 join user_details ud
     on n.user_id = ud.user_id     
         and upper(username) = upper(v('APP_USER'))     
-where trunc(n.date_logged) = v('P1_DATE')              
+where trunc(n.date_logged) = to_date(v('P1_DATE'),'dd-mm-yyyy')       
 group by ud.user_id, ud.username, n.date_logged
