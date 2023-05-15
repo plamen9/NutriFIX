@@ -7,6 +7,11 @@ as
     , out_response    out clob
   );
 
+  procedure get_completion_chatgpt_api (
+    in_prompt    in  clob,
+    out_response out clob
+  );
+
   procedure add_nutrients (
       in_date               in date
     , in_nutrition_fact_ids in apex_t_number
