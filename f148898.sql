@@ -33,7 +33,7 @@ prompt APPLICATION 148898 - NutriFIX
 -- Application Export:
 --   Application:     148898
 --   Name:            NutriFIX
---   Date and Time:   02:09 Monday May 15, 2023
+--   Date and Time:   11:16 Monday May 15, 2023
 --   Exported By:     PLAMEN
 --   Flashback:       0
 --   Export Type:     Application Export
@@ -41,9 +41,9 @@ prompt APPLICATION 148898 - NutriFIX
 --       Items:                   51
 --       Validations:              1
 --       Processes:               22
---       Regions:                 81
---       Buttons:                 38
---       Dynamic Actions:         13
+--       Regions:                 86
+--       Buttons:                 40
+--       Dynamic Actions:         14
 --     Shared Components:
 --       Logic:
 --         Items:                  4
@@ -125,7 +125,7 @@ wwv_imp_workspace.create_flow(
 ,p_substitution_string_01=>'APP_NAME'
 ,p_substitution_value_01=>'NutriFIX'
 ,p_last_updated_by=>'PLAMEN'
-,p_last_upd_yyyymmddhh24miss=>'20230515020802'
+,p_last_upd_yyyymmddhh24miss=>'20230515111448'
 ,p_file_prefix => nvl(wwv_flow_application_install.get_static_app_file_prefix,'')
 ,p_files_version=>25
 ,p_print_server_type=>'INSTANCE'
@@ -200,7 +200,7 @@ wwv_flow_imp_shared.create_list_item(
 wwv_flow_imp_shared.create_list_item(
  p_id=>wwv_flow_imp.id(12885763270202474256)
 ,p_list_item_display_sequence=>20
-,p_list_item_link_text=>'Daily Nutrition'
+,p_list_item_link_text=>'Suggested Meals'
 ,p_list_item_link_target=>'f?p=&APP_ID.:3:&APP_SESSION.::&DEBUG.:::'
 ,p_list_item_icon=>'fa-cutlery'
 ,p_list_item_current_type=>'COLON_DELIMITED_PAGE_LIST'
@@ -209,8 +209,8 @@ wwv_flow_imp_shared.create_list_item(
 wwv_flow_imp_shared.create_list_item(
  p_id=>wwv_flow_imp.id(13154221286183672540)
 ,p_list_item_display_sequence=>30
-,p_list_item_link_text=>'Nutrition Tips'
-,p_list_item_link_target=>'f?p=&APP_ID.:4:&APP_SESSION.::&DEBUG.:::'
+,p_list_item_link_text=>'Log Nutrition'
+,p_list_item_link_target=>'f?p=&APP_ID.:4:&SESSION.::&DEBUG.::::'
 ,p_list_item_icon=>'fa-medication-pill'
 ,p_list_item_current_type=>'COLON_DELIMITED_PAGE_LIST'
 ,p_list_item_current_for_pages=>'4'
@@ -18681,7 +18681,7 @@ wwv_flow_imp_page.create_page(
 ,p_protection_level=>'C'
 ,p_page_component_map=>'18'
 ,p_last_updated_by=>'PLAMEN'
-,p_last_upd_yyyymmddhh24miss=>'20230515014710'
+,p_last_upd_yyyymmddhh24miss=>'20230515111448'
 );
 wwv_flow_imp_page.create_page_plug(
  p_id=>wwv_flow_imp.id(12480981580131341514)
@@ -18729,7 +18729,7 @@ wwv_flow_imp_page.create_page_plug(
 ,p_plug_template=>wwv_flow_imp.id(12801658105678372709)
 ,p_plug_display_sequence=>10
 ,p_plug_grid_column_span=>8
-,p_plug_grid_column_css_classes=>'col col-8'
+,p_plug_grid_column_css_classes=>'col col-8 col-xxs-8 col-xs-8'
 ,p_plug_display_point=>'SUB_REGIONS'
 ,p_attribute_01=>'N'
 ,p_attribute_02=>'HTML'
@@ -18972,6 +18972,7 @@ wwv_flow_imp_page.create_page_plug(
 '        and upper(ud.username) = upper(v(''APP_USER''))     ',
 'where trunc(n.date_logged) = to_date(v(''P1_DATE''),''dd-mm-yyyy'')     '))
 ,p_plug_source_type=>'NATIVE_IR'
+,p_ajax_items_to_submit=>'P1_DATE'
 ,p_prn_content_disposition=>'ATTACHMENT'
 ,p_prn_units=>'INCHES'
 ,p_prn_paper_size=>'LETTER'
@@ -19044,6 +19045,17 @@ wwv_flow_imp_page.create_worksheet_rpt(
 ,p_report_columns=>'CATEGORY:NUTRITION_COUNT'
 );
 wwv_flow_imp_page.create_page_plug(
+ p_id=>wwv_flow_imp.id(13350436158219416115)
+,p_plug_name=>'Actions'
+,p_parent_plug_id=>wwv_flow_imp.id(12480984870506341547)
+,p_region_template_options=>'#DEFAULT#'
+,p_plug_template=>wwv_flow_imp.id(12800991598349372682)
+,p_plug_display_sequence=>30
+,p_plug_display_point=>'SUB_REGIONS'
+,p_attribute_01=>'N'
+,p_attribute_02=>'HTML'
+);
+wwv_flow_imp_page.create_page_plug(
  p_id=>wwv_flow_imp.id(25641339169693736847)
 ,p_plug_name=>'Goals'
 ,p_parent_plug_id=>wwv_flow_imp.id(13152141794943574408)
@@ -19052,8 +19064,18 @@ wwv_flow_imp_page.create_page_plug(
 ,p_plug_display_sequence=>10
 ,p_plug_new_grid_row=>false
 ,p_plug_grid_column_span=>4
-,p_plug_grid_column_css_classes=>'col col-4'
+,p_plug_grid_column_css_classes=>'col col-4 col-xxs-4 col-xs-4'
 ,p_plug_display_point=>'SUB_REGIONS'
+,p_plug_display_condition_type=>'EXISTS'
+,p_plug_display_when_condition=>wwv_flow_string.join(wwv_flow_t_varchar2(
+'select initcap(category) category, nutrition_count ',
+'from user_daily_nutrition n',
+'join nutrition_facts f',
+'    on n.nutrition_id = f.id',
+'join user_details ud',
+'    on n.user_id = ud.user_id     ',
+'        and upper(ud.username) = upper(v(''APP_USER''))     ',
+'where trunc(n.date_logged) = to_date(v(''P1_DATE''),''dd-mm-yyyy'')'))
 ,p_attribute_01=>'N'
 ,p_attribute_02=>'HTML'
 );
@@ -19117,6 +19139,7 @@ wwv_flow_imp_page.create_jet_chart_series(
 '        on ud.age = ng.age  ',
 '            and ud.gender = ng.gender  ',
 ')'))
+,p_ajax_items_to_submit=>'P1_DATE'
 ,p_items_value_column_name=>'VALUE'
 ,p_items_max_value=>'MAX_VALUE'
 ,p_items_label_column_name=>'LABEL'
@@ -19188,6 +19211,295 @@ wwv_flow_imp_page.create_jet_chart_series(
 '        on ud.age = ng.age  ',
 '            and ud.gender = ng.gender  ',
 ')'))
+,p_ajax_items_to_submit=>'P1_DATE'
+,p_items_value_column_name=>'VALUE'
+,p_items_max_value=>'MAX_VALUE'
+,p_items_label_column_name=>'LABEL'
+,p_color=>'#339a00'
+,p_items_label_rendered=>true
+,p_items_label_position=>'afterMarker'
+,p_gauge_plot_area_color=>'#e2e2e2'
+,p_threshold_values=>'40,90,250,1000'
+,p_threshold_colors=>'red, yellow, green, red'
+,p_threshold_display=>'onIndicator'
+);
+wwv_flow_imp_page.create_page_plug(
+ p_id=>wwv_flow_imp.id(13350434855246416102)
+,p_plug_name=>'Iron'
+,p_parent_plug_id=>wwv_flow_imp.id(25641339169693736847)
+,p_region_template_options=>'#DEFAULT#'
+,p_component_template_options=>'#DEFAULT#'
+,p_plug_template=>wwv_flow_imp.id(12800991598349372682)
+,p_plug_display_sequence=>70
+,p_plug_display_point=>'SUB_REGIONS'
+,p_plug_source_type=>'NATIVE_JET_CHART'
+);
+wwv_flow_imp_page.create_jet_chart(
+ p_id=>wwv_flow_imp.id(13350434988245416103)
+,p_region_id=>wwv_flow_imp.id(13350434855246416102)
+,p_chart_type=>'dial'
+,p_width=>'90'
+,p_height=>'100'
+,p_animation_on_display=>'auto'
+,p_animation_on_data_change=>'auto'
+,p_value_text_type=>'percent'
+,p_value_format_scaling=>'auto'
+,p_tooltip_rendered=>'Y'
+,p_gauge_orientation=>'circular'
+,p_gauge_indicator_size=>.5
+,p_gauge_inner_radius=>.7
+,p_gauge_plot_area=>'on'
+,p_gauge_start_angle=>90
+,p_gauge_angle_extent=>360
+,p_show_gauge_value=>true
+);
+wwv_flow_imp_page.create_jet_chart_series(
+ p_id=>wwv_flow_imp.id(13350435086198416104)
+,p_chart_id=>wwv_flow_imp.id(13350434988245416103)
+,p_seq=>10
+,p_name=>'Iron'
+,p_data_source_type=>'SQL'
+,p_data_source=>wwv_flow_string.join(wwv_flow_t_varchar2(
+'select ''Iron'' label, round(IRON_PCT) value, 100 max_value from (',
+'',
+'    with user_daily_nutrition_v as (',
+'    select ud.user_id, ud.username, n.date_logged, --n.*, f.* ',
+'           sum(IRON) IRON',
+'    from user_daily_nutrition n',
+'    join nutrition_facts f',
+'        on n.nutrition_id = f.id',
+'    join user_details ud',
+'        on n.user_id = ud.user_id     ',
+'            and upper(username) = upper(v(''APP_USER''))     ',
+'    where trunc(n.date_logged) = to_date(v(''P1_DATE''),''DD-MM-YYYY'')              ',
+'    group by ud.user_id, ud.username, n.date_logged )',
+'',
+'    select n.user_id, n.username, n.date_logged,',
+'           n.IRON/ng.IRON*100 IRON_PCT',
+'    from user_daily_nutrition_v n',
+'    join user_details ud',
+'        on n.user_id = ud.user_id   ',
+'    join nutrition_goals ng',
+'        on ud.age = ng.age  ',
+'            and ud.gender = ng.gender  ',
+')'))
+,p_ajax_items_to_submit=>'P1_DATE'
+,p_items_value_column_name=>'VALUE'
+,p_items_max_value=>'MAX_VALUE'
+,p_items_label_column_name=>'LABEL'
+,p_color=>'#339a00'
+,p_items_label_rendered=>true
+,p_items_label_position=>'afterMarker'
+,p_gauge_plot_area_color=>'#e2e2e2'
+,p_threshold_values=>'40,90,250,1000'
+,p_threshold_colors=>'red, yellow, green, red'
+,p_threshold_display=>'onIndicator'
+);
+wwv_flow_imp_page.create_page_plug(
+ p_id=>wwv_flow_imp.id(13350435155952416105)
+,p_plug_name=>'Zinc'
+,p_parent_plug_id=>wwv_flow_imp.id(25641339169693736847)
+,p_region_template_options=>'#DEFAULT#'
+,p_component_template_options=>'#DEFAULT#'
+,p_plug_template=>wwv_flow_imp.id(12800991598349372682)
+,p_plug_display_sequence=>80
+,p_plug_display_point=>'SUB_REGIONS'
+,p_plug_source_type=>'NATIVE_JET_CHART'
+);
+wwv_flow_imp_page.create_jet_chart(
+ p_id=>wwv_flow_imp.id(13350435293107416106)
+,p_region_id=>wwv_flow_imp.id(13350435155952416105)
+,p_chart_type=>'dial'
+,p_width=>'90'
+,p_height=>'100'
+,p_animation_on_display=>'auto'
+,p_animation_on_data_change=>'auto'
+,p_value_text_type=>'percent'
+,p_value_format_scaling=>'auto'
+,p_tooltip_rendered=>'Y'
+,p_gauge_orientation=>'circular'
+,p_gauge_indicator_size=>.5
+,p_gauge_inner_radius=>.7
+,p_gauge_plot_area=>'on'
+,p_gauge_start_angle=>90
+,p_gauge_angle_extent=>360
+,p_show_gauge_value=>true
+);
+wwv_flow_imp_page.create_jet_chart_series(
+ p_id=>wwv_flow_imp.id(13350435396848416107)
+,p_chart_id=>wwv_flow_imp.id(13350435293107416106)
+,p_seq=>10
+,p_name=>'Zinc'
+,p_data_source_type=>'SQL'
+,p_data_source=>wwv_flow_string.join(wwv_flow_t_varchar2(
+'select ''Zinc'' label, round(ZINC_PCT) value, 100 max_value from (',
+'',
+'    with user_daily_nutrition_v as (',
+'    select ud.user_id, ud.username, n.date_logged, --n.*, f.* ',
+'           sum(ZINC) ZINC',
+'    from user_daily_nutrition n',
+'    join nutrition_facts f',
+'        on n.nutrition_id = f.id',
+'    join user_details ud',
+'        on n.user_id = ud.user_id     ',
+'            and upper(username) = upper(v(''APP_USER''))     ',
+'    where trunc(n.date_logged) = to_date(v(''P1_DATE''),''DD-MM-YYYY'')              ',
+'    group by ud.user_id, ud.username, n.date_logged )',
+'',
+'    select n.user_id, n.username, n.date_logged,',
+'           n.ZINC/ng.ZINC*100 ZINC_PCT',
+'    from user_daily_nutrition_v n',
+'    join user_details ud',
+'        on n.user_id = ud.user_id   ',
+'    join nutrition_goals ng',
+'        on ud.age = ng.age  ',
+'            and ud.gender = ng.gender  ',
+')'))
+,p_ajax_items_to_submit=>'P1_DATE'
+,p_items_value_column_name=>'VALUE'
+,p_items_max_value=>'MAX_VALUE'
+,p_items_label_column_name=>'LABEL'
+,p_color=>'#339a00'
+,p_items_label_rendered=>true
+,p_items_label_position=>'afterMarker'
+,p_gauge_plot_area_color=>'#e2e2e2'
+,p_threshold_values=>'40,90,250,1000'
+,p_threshold_colors=>'red, yellow, green, red'
+,p_threshold_display=>'onIndicator'
+);
+wwv_flow_imp_page.create_page_plug(
+ p_id=>wwv_flow_imp.id(13350435449901416108)
+,p_plug_name=>'Vit. C'
+,p_parent_plug_id=>wwv_flow_imp.id(25641339169693736847)
+,p_region_template_options=>'#DEFAULT#'
+,p_component_template_options=>'#DEFAULT#'
+,p_plug_template=>wwv_flow_imp.id(12800991598349372682)
+,p_plug_display_sequence=>90
+,p_plug_display_point=>'SUB_REGIONS'
+,p_plug_source_type=>'NATIVE_JET_CHART'
+);
+wwv_flow_imp_page.create_jet_chart(
+ p_id=>wwv_flow_imp.id(13350435507516416109)
+,p_region_id=>wwv_flow_imp.id(13350435449901416108)
+,p_chart_type=>'dial'
+,p_width=>'90'
+,p_height=>'100'
+,p_animation_on_display=>'auto'
+,p_animation_on_data_change=>'auto'
+,p_value_text_type=>'percent'
+,p_value_format_scaling=>'auto'
+,p_tooltip_rendered=>'Y'
+,p_gauge_orientation=>'circular'
+,p_gauge_indicator_size=>.5
+,p_gauge_inner_radius=>.7
+,p_gauge_plot_area=>'on'
+,p_gauge_start_angle=>90
+,p_gauge_angle_extent=>360
+,p_show_gauge_value=>true
+);
+wwv_flow_imp_page.create_jet_chart_series(
+ p_id=>wwv_flow_imp.id(13350435666829416110)
+,p_chart_id=>wwv_flow_imp.id(13350435507516416109)
+,p_seq=>10
+,p_name=>'Vit. C'
+,p_data_source_type=>'SQL'
+,p_data_source=>wwv_flow_string.join(wwv_flow_t_varchar2(
+'select ''Vit. C'' label, round(VITAMIN_C_PCT) value, 100 max_value from (',
+'',
+'    with user_daily_nutrition_v as (',
+'    select ud.user_id, ud.username, n.date_logged, --n.*, f.* ',
+'           sum(VITAMIN_C) VITAMIN_C',
+'    from user_daily_nutrition n',
+'    join nutrition_facts f',
+'        on n.nutrition_id = f.id',
+'    join user_details ud',
+'        on n.user_id = ud.user_id     ',
+'            and upper(username) = upper(v(''APP_USER''))     ',
+'    where trunc(n.date_logged) = to_date(v(''P1_DATE''),''DD-MM-YYYY'')              ',
+'    group by ud.user_id, ud.username, n.date_logged )',
+'',
+'    select n.user_id, n.username, n.date_logged,',
+'           n.VITAMIN_C/ng.VITAMIN_C*100 VITAMIN_C_PCT',
+'    from user_daily_nutrition_v n',
+'    join user_details ud',
+'        on n.user_id = ud.user_id   ',
+'    join nutrition_goals ng',
+'        on ud.age = ng.age  ',
+'            and ud.gender = ng.gender  ',
+')'))
+,p_ajax_items_to_submit=>'P1_DATE'
+,p_items_value_column_name=>'VALUE'
+,p_items_max_value=>'MAX_VALUE'
+,p_items_label_column_name=>'LABEL'
+,p_color=>'#339a00'
+,p_items_label_rendered=>true
+,p_items_label_position=>'afterMarker'
+,p_gauge_plot_area_color=>'#e2e2e2'
+,p_threshold_values=>'40,90,250,1000'
+,p_threshold_colors=>'red, yellow, green, red'
+,p_threshold_display=>'onIndicator'
+);
+wwv_flow_imp_page.create_page_plug(
+ p_id=>wwv_flow_imp.id(13350435748718416111)
+,p_plug_name=>'Vit. E'
+,p_parent_plug_id=>wwv_flow_imp.id(25641339169693736847)
+,p_region_template_options=>'#DEFAULT#'
+,p_component_template_options=>'#DEFAULT#'
+,p_plug_template=>wwv_flow_imp.id(12800991598349372682)
+,p_plug_display_sequence=>100
+,p_plug_display_point=>'SUB_REGIONS'
+,p_plug_source_type=>'NATIVE_JET_CHART'
+);
+wwv_flow_imp_page.create_jet_chart(
+ p_id=>wwv_flow_imp.id(13350435837206416112)
+,p_region_id=>wwv_flow_imp.id(13350435748718416111)
+,p_chart_type=>'dial'
+,p_width=>'90'
+,p_height=>'100'
+,p_animation_on_display=>'auto'
+,p_animation_on_data_change=>'auto'
+,p_value_text_type=>'percent'
+,p_value_format_scaling=>'auto'
+,p_tooltip_rendered=>'Y'
+,p_gauge_orientation=>'circular'
+,p_gauge_indicator_size=>.5
+,p_gauge_inner_radius=>.7
+,p_gauge_plot_area=>'on'
+,p_gauge_start_angle=>90
+,p_gauge_angle_extent=>360
+,p_show_gauge_value=>true
+);
+wwv_flow_imp_page.create_jet_chart_series(
+ p_id=>wwv_flow_imp.id(13350435962525416113)
+,p_chart_id=>wwv_flow_imp.id(13350435837206416112)
+,p_seq=>10
+,p_name=>'Vit. E'
+,p_data_source_type=>'SQL'
+,p_data_source=>wwv_flow_string.join(wwv_flow_t_varchar2(
+'select ''Vit. E'' label, round(VITAMIN_E_PCT) value, 100 max_value from (',
+'',
+'    with user_daily_nutrition_v as (',
+'    select ud.user_id, ud.username, n.date_logged, --n.*, f.* ',
+'           sum(VITAMIN_E) VITAMIN_E',
+'    from user_daily_nutrition n',
+'    join nutrition_facts f',
+'        on n.nutrition_id = f.id',
+'    join user_details ud',
+'        on n.user_id = ud.user_id     ',
+'            and upper(username) = upper(v(''APP_USER''))     ',
+'    where trunc(n.date_logged) = to_date(v(''P1_DATE''),''DD-MM-YYYY'')              ',
+'    group by ud.user_id, ud.username, n.date_logged )',
+'',
+'    select n.user_id, n.username, n.date_logged,',
+'           n.VITAMIN_E/ng.VITAMIN_E*100 VITAMIN_E_PCT',
+'    from user_daily_nutrition_v n',
+'    join user_details ud',
+'        on n.user_id = ud.user_id   ',
+'    join nutrition_goals ng',
+'        on ud.age = ng.age  ',
+'            and ud.gender = ng.gender  ',
+')'))
+,p_ajax_items_to_submit=>'P1_DATE'
 ,p_items_value_column_name=>'VALUE'
 ,p_items_max_value=>'MAX_VALUE'
 ,p_items_label_column_name=>'LABEL'
@@ -19270,6 +19582,7 @@ wwv_flow_imp_page.create_jet_chart_series(
 '        on ud.age = ng.age  ',
 '            and ud.gender = ng.gender  ',
 ')'))
+,p_ajax_items_to_submit=>'P1_DATE'
 ,p_items_value_column_name=>'VALUE'
 ,p_items_max_value=>'MAX_VALUE'
 ,p_items_label_column_name=>'LABEL'
@@ -19321,6 +19634,9 @@ wwv_flow_imp_page.create_jet_chart(
 ,p_gauge_angle_extent=>360
 ,p_show_gauge_value=>true
 );
+end;
+/
+begin
 wwv_flow_imp_page.create_jet_chart_series(
  p_id=>wwv_flow_imp.id(13160357787221395314)
 ,p_chart_id=>wwv_flow_imp.id(13160357245360395313)
@@ -19351,6 +19667,7 @@ wwv_flow_imp_page.create_jet_chart_series(
 '        on ud.age = ng.age  ',
 '            and ud.gender = ng.gender  ',
 ')'))
+,p_ajax_items_to_submit=>'P1_DATE'
 ,p_items_value_column_name=>'VALUE'
 ,p_items_max_value=>'MAX_VALUE'
 ,p_items_label_column_name=>'LABEL'
@@ -19432,6 +19749,7 @@ wwv_flow_imp_page.create_jet_chart_series(
 '        on ud.age = ng.age  ',
 '            and ud.gender = ng.gender  ',
 ')'))
+,p_ajax_items_to_submit=>'P1_DATE'
 ,p_items_value_column_name=>'VALUE'
 ,p_items_max_value=>'MAX_VALUE'
 ,p_items_label_column_name=>'LABEL'
@@ -19526,6 +19844,45 @@ wwv_flow_imp_page.create_jet_chart_series(
 ,p_threshold_values=>'40,90,250,1000'
 ,p_threshold_colors=>'red, yellow, green, red'
 ,p_threshold_display=>'onIndicator'
+);
+wwv_flow_imp_page.create_page_button(
+ p_id=>wwv_flow_imp.id(13350436094541416114)
+,p_button_sequence=>10
+,p_button_plug_id=>wwv_flow_imp.id(13350436158219416115)
+,p_button_name=>'ViewSuggestions'
+,p_button_action=>'REDIRECT_PAGE'
+,p_button_template_options=>'#DEFAULT#:t-Button--large:t-Button--stretch:t-Button--padTop'
+,p_button_template_id=>wwv_flow_imp.id(12801731447371372743)
+,p_button_image_alt=>'View Suggested Meals'
+,p_button_redirect_url=>'f?p=&APP_ID.:3:&SESSION.::&DEBUG.:::'
+,p_button_condition=>wwv_flow_string.join(wwv_flow_t_varchar2(
+'select initcap(category) category, nutrition_count ',
+'from user_daily_nutrition n',
+'join nutrition_facts f',
+'    on n.nutrition_id = f.id',
+'join user_details ud',
+'    on n.user_id = ud.user_id     ',
+'        and upper(ud.username) = upper(v(''APP_USER''))     ',
+'where trunc(n.date_logged) = to_date(v(''P1_DATE''),''dd-mm-yyyy'')'))
+,p_button_condition_type=>'EXISTS'
+,p_grid_new_row=>'Y'
+);
+wwv_flow_imp_page.create_page_button(
+ p_id=>wwv_flow_imp.id(13350434785589416101)
+,p_button_sequence=>20
+,p_button_plug_id=>wwv_flow_imp.id(12480984870506341547)
+,p_button_name=>'View'
+,p_button_action=>'SUBMIT'
+,p_button_template_options=>'#DEFAULT#:t-Button--large:t-Button--padTop'
+,p_button_template_id=>wwv_flow_imp.id(12801730754590372743)
+,p_button_image_alt=>'View'
+,p_button_css_classes=>'margin-left-none'
+,p_icon_css_classes=>'fa-lightbulb-o'
+,p_button_cattributes=>'style="padding: 16px 5px 15px 5px !important"'
+,p_grid_column_css_classes=>'col col-3 col-xxs-3 col-xs-3'
+,p_grid_new_row=>'N'
+,p_grid_new_column=>'Y'
+,p_grid_column_span=>3
 );
 wwv_flow_imp_page.create_page_button(
  p_id=>wwv_flow_imp.id(12480982938113341528)
@@ -19646,9 +20003,6 @@ wwv_flow_imp_page.create_page_item(
 ,p_attribute_01=>'NONE'
 ,p_attribute_02=>'N'
 );
-end;
-/
-begin
 wwv_flow_imp_page.create_page_item(
  p_id=>wwv_flow_imp.id(12480982261659341521)
 ,p_name=>'P1_CITY'
@@ -19769,8 +20123,12 @@ wwv_flow_imp_page.create_page_item(
 ,p_format_mask=>'DD-MM-YYYY'
 ,p_display_as=>'NATIVE_DATE_PICKER_APEX'
 ,p_cSize=>30
+,p_tag_attributes=>'style="padding-right: 0px !important;"'
+,p_colspan=>9
+,p_grid_column_css_classes=>'col col-9 col-xxs-9 col-xs-9'
 ,p_field_template=>wwv_flow_imp.id(12801728969764372742)
-,p_item_template_options=>'#DEFAULT#'
+,p_item_css_classes=>'margin-right-none'
+,p_item_template_options=>'#DEFAULT#:margin-right-none'
 ,p_attribute_01=>'N'
 ,p_attribute_02=>'POPUP'
 ,p_attribute_03=>'NONE'
@@ -19809,26 +20167,68 @@ wwv_flow_imp_page.create_page_da_event(
 ,p_bind_event_type=>'change'
 );
 wwv_flow_imp_page.create_page_da_action(
- p_id=>wwv_flow_imp.id(13152145015566574441)
+ p_id=>wwv_flow_imp.id(13152145889816574449)
 ,p_event_id=>wwv_flow_imp.id(13152142241220574413)
 ,p_event_result=>'TRUE'
 ,p_action_sequence=>10
+,p_execute_on_page_init=>'Y'
+,p_action=>'NATIVE_SHOW'
+,p_affected_elements_type=>'REGION'
+,p_affected_region_id=>wwv_flow_imp.id(12480985073677341549)
+,p_server_condition_type=>'EXISTS'
+,p_server_condition_expr1=>wwv_flow_string.join(wwv_flow_t_varchar2(
+'select initcap(category) category, nutrition_count ',
+'from user_daily_nutrition n',
+'join nutrition_facts f',
+'    on n.nutrition_id = f.id',
+'join user_details ud',
+'    on n.user_id = ud.user_id     ',
+'        and upper(ud.username) = upper(v(''APP_USER''))     ',
+'where trunc(n.date_logged) = to_date(v(''P1_DATE''),''dd-mm-yyyy'')     '))
+);
+wwv_flow_imp_page.create_page_da_action(
+ p_id=>wwv_flow_imp.id(13152145015566574441)
+,p_event_id=>wwv_flow_imp.id(13152142241220574413)
+,p_event_result=>'TRUE'
+,p_action_sequence=>30
 ,p_execute_on_page_init=>'N'
 ,p_name=>'Refresh Nutrition list'
 ,p_action=>'NATIVE_REFRESH'
 ,p_affected_elements_type=>'REGION'
 ,p_affected_region_id=>wwv_flow_imp.id(13152142445451574415)
+,p_server_condition_type=>'NEVER'
+);
+wwv_flow_imp_page.create_page_da_action(
+ p_id=>wwv_flow_imp.id(13152145939627574450)
+,p_event_id=>wwv_flow_imp.id(13152142241220574413)
+,p_event_result=>'TRUE'
+,p_action_sequence=>40
+,p_execute_on_page_init=>'Y'
+,p_action=>'NATIVE_SHOW'
+,p_affected_elements_type=>'REGION'
+,p_affected_region_id=>wwv_flow_imp.id(25641339169693736847)
+,p_server_condition_type=>'EXISTS'
+,p_server_condition_expr1=>wwv_flow_string.join(wwv_flow_t_varchar2(
+'select initcap(category) category, nutrition_count ',
+'from user_daily_nutrition n',
+'join nutrition_facts f',
+'    on n.nutrition_id = f.id',
+'join user_details ud',
+'    on n.user_id = ud.user_id     ',
+'        and upper(ud.username) = upper(v(''APP_USER''))     ',
+'where trunc(n.date_logged) = to_date(v(''P1_DATE''),''dd-mm-yyyy'')     '))
 );
 wwv_flow_imp_page.create_page_da_action(
  p_id=>wwv_flow_imp.id(13152142314928574414)
 ,p_event_id=>wwv_flow_imp.id(13152142241220574413)
 ,p_event_result=>'TRUE'
-,p_action_sequence=>20
+,p_action_sequence=>50
 ,p_execute_on_page_init=>'N'
-,p_name=>'Refresh Calories Chart'
+,p_name=>'Refresh Goals'
 ,p_action=>'NATIVE_REFRESH'
 ,p_affected_elements_type=>'REGION'
 ,p_affected_region_id=>wwv_flow_imp.id(38764919191822156150)
+,p_server_condition_type=>'NEVER'
 );
 wwv_flow_imp_page.create_page_process(
  p_id=>wwv_flow_imp.id(12480983079523341529)
@@ -20416,7 +20816,7 @@ wwv_flow_imp_page.create_page(
 ,p_protection_level=>'C'
 ,p_page_component_map=>'18'
 ,p_last_updated_by=>'PLAMEN'
-,p_last_upd_yyyymmddhh24miss=>'20230515020000'
+,p_last_upd_yyyymmddhh24miss=>'20230515104350'
 );
 wwv_flow_imp_page.create_page_plug(
  p_id=>wwv_flow_imp.id(12808541950255686703)
@@ -20513,7 +20913,7 @@ wwv_flow_imp_page.create_worksheet_rpt(
 ,p_report_alias=>'131625474'
 ,p_status=>'PUBLIC'
 ,p_is_default=>'Y'
-,p_report_columns=>'NUTRITION_COUNT'
+,p_report_columns=>'CATEGORY:NUTRITION_COUNT:'
 );
 wwv_flow_imp_page.create_page_plug(
  p_id=>wwv_flow_imp.id(12808542413677686708)
@@ -20539,15 +20939,15 @@ wwv_flow_imp_page.create_page_plug(
 );
 wwv_flow_imp_page.create_page_button(
  p_id=>wwv_flow_imp.id(12808542287501686706)
-,p_button_sequence=>10
+,p_button_sequence=>50
 ,p_button_plug_id=>wwv_flow_imp.id(12808541950255686703)
 ,p_button_name=>'ADD_NUTRIENT'
 ,p_button_action=>'SUBMIT'
-,p_button_template_options=>'#DEFAULT#'
+,p_button_template_options=>'#DEFAULT#:t-Button--large:t-Button--stretch'
 ,p_button_template_id=>wwv_flow_imp.id(12801731447371372743)
 ,p_button_is_hot=>'Y'
 ,p_button_image_alt=>'Add Nutrient'
-,p_button_position=>'CHANGE'
+,p_grid_new_row=>'Y'
 );
 wwv_flow_imp_page.create_page_item(
  p_id=>wwv_flow_imp.id(12808542073489686704)
@@ -20557,8 +20957,8 @@ wwv_flow_imp_page.create_page_item(
 ,p_prompt=>'Date'
 ,p_display_as=>'NATIVE_DATE_PICKER_APEX'
 ,p_cSize=>30
-,p_field_template=>wwv_flow_imp.id(12801729014206372742)
-,p_item_template_options=>'#DEFAULT#:t-Form-fieldContainer--stretchInputs'
+,p_field_template=>wwv_flow_imp.id(12801730226559372743)
+,p_item_template_options=>'#DEFAULT#'
 ,p_attribute_01=>'N'
 ,p_attribute_02=>'POPUP'
 ,p_attribute_03=>'NONE'
@@ -20576,7 +20976,7 @@ wwv_flow_imp_page.create_page_item(
 ,p_named_lov=>'LV_NUTRITION_FACTS'
 ,p_lov_display_null=>'YES'
 ,p_cSize=>30
-,p_field_template=>wwv_flow_imp.id(12801729014206372742)
+,p_field_template=>wwv_flow_imp.id(12801730226559372743)
 ,p_item_template_options=>'#DEFAULT#'
 ,p_lov_display_extra=>'YES'
 ,p_inline_help_text=>'You can select as many as you want.'
@@ -20596,10 +20996,30 @@ wwv_flow_imp_page.create_page_item(
 ,p_prompt=>'Amount'
 ,p_display_as=>'NATIVE_NUMBER_FIELD'
 ,p_cSize=>30
-,p_field_template=>wwv_flow_imp.id(12801729014206372742)
+,p_field_template=>wwv_flow_imp.id(12801730226559372743)
 ,p_item_template_options=>'#DEFAULT#'
 ,p_attribute_03=>'left'
 ,p_attribute_04=>'decimal'
+);
+wwv_flow_imp_page.create_page_da_event(
+ p_id=>wwv_flow_imp.id(13350436290159416116)
+,p_name=>'On Date Change - refresh report'
+,p_event_sequence=>10
+,p_triggering_element_type=>'ITEM'
+,p_triggering_element=>'P4_DATE'
+,p_bind_type=>'bind'
+,p_execution_type=>'IMMEDIATE'
+,p_bind_event_type=>'change'
+);
+wwv_flow_imp_page.create_page_da_action(
+ p_id=>wwv_flow_imp.id(13350436316686416117)
+,p_event_id=>wwv_flow_imp.id(13350436290159416116)
+,p_event_result=>'TRUE'
+,p_action_sequence=>10
+,p_execute_on_page_init=>'N'
+,p_action=>'NATIVE_REFRESH'
+,p_affected_elements_type=>'REGION'
+,p_affected_region_id=>wwv_flow_imp.id(12808542331672686707)
 );
 wwv_flow_imp_page.create_page_process(
  p_id=>wwv_flow_imp.id(12808543217304686716)
@@ -20632,26 +21052,25 @@ wwv_flow_imp_page.create_page(
 ,p_protection_level=>'C'
 ,p_page_component_map=>'22'
 ,p_last_updated_by=>'PLAMEN'
-,p_last_upd_yyyymmddhh24miss=>'20230515001951'
+,p_last_upd_yyyymmddhh24miss=>'20230515100030'
 );
 wwv_flow_imp_page.create_page_plug(
  p_id=>wwv_flow_imp.id(13165572920950009874)
-,p_plug_name=>'Breadcrumb'
-,p_region_template_options=>'#DEFAULT#:t-BreadcrumbRegion--useBreadcrumbTitle'
-,p_component_template_options=>'#DEFAULT#'
-,p_plug_template=>wwv_flow_imp.id(12801670586604372715)
+,p_plug_name=>'Community'
+,p_region_template_options=>'#DEFAULT#'
+,p_plug_template=>wwv_flow_imp.id(12801624840600372696)
 ,p_plug_display_sequence=>10
 ,p_plug_display_point=>'REGION_POSITION_01'
-,p_menu_id=>wwv_flow_imp.id(12800954840723372664)
-,p_plug_source_type=>'NATIVE_BREADCRUMB'
-,p_menu_template_id=>wwv_flow_imp.id(12801733002996372744)
+,p_region_image=>'#APP_FILES#icons/app-icon-512.png'
+,p_attribute_01=>'N'
+,p_attribute_02=>'HTML'
 );
 wwv_flow_imp_page.create_page_plug(
  p_id=>wwv_flow_imp.id(13165573540283009875)
 ,p_plug_name=>'Map'
 ,p_region_template_options=>'#DEFAULT#'
 ,p_plug_template=>wwv_flow_imp.id(12800992922362372682)
-,p_plug_display_sequence=>20
+,p_plug_display_sequence=>10
 ,p_query_type=>'SQL'
 ,p_plug_source=>wwv_flow_string.join(wwv_flow_t_varchar2(
 'select d.full_name, d.gender, d.age, d.country, d.city,',
@@ -20728,9 +21147,7 @@ wwv_flow_imp_page.create_page_plug(
 ,p_plug_name=>'Search'
 ,p_region_template_options=>'#DEFAULT#:t-Region--noPadding:t-Region--hideHeader:t-Region--scrollBody'
 ,p_plug_template=>wwv_flow_imp.id(12801658105678372709)
-,p_plug_display_sequence=>10
-,p_plug_grid_column_span=>4
-,p_plug_display_point=>'REGION_POSITION_02'
+,p_plug_display_sequence=>20
 ,p_plug_source_type=>'NATIVE_FACETED_SEARCH'
 ,p_filtered_region_id=>wwv_flow_imp.id(13165573540283009875)
 ,p_landmark_label=>'Filters'
@@ -20746,10 +21163,8 @@ wwv_flow_imp_page.create_page_plug(
  p_id=>wwv_flow_imp.id(13165574413419009876)
 ,p_plug_name=>'Button Bar'
 ,p_region_template_options=>'#DEFAULT#:t-ButtonRegion--noPadding:t-ButtonRegion--noUI'
-,p_escape_on_http_output=>'Y'
 ,p_plug_template=>wwv_flow_imp.id(12800994316180372683)
-,p_plug_display_sequence=>10
-,p_query_type=>'SQL'
+,p_plug_display_sequence=>30
 ,p_plug_source=>'<div id="active_facets"></div>'
 ,p_plug_query_num_rows=>15
 ,p_attribute_01=>'N'
